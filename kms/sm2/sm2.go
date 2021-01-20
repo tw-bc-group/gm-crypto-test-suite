@@ -15,4 +15,6 @@ type Sm2KMS interface {
 type Sm2PubKey interface {
 	// WriteToPem writes pubKey to pem for tjfoc to load
 	WriteToPem() ([]byte, error)
+	// ReadFromPem reads pubKey pem from tjfoc
+	ReadFromPem([]byte) (Sm2PubKey, error)
 }

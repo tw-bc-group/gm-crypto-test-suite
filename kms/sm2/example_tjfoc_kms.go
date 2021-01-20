@@ -15,6 +15,14 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToMem(pubKey.publicKey)
 }
 
+func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (Sm2PubKey, error) {
+	pub, err := x509.ReadPublicKeyFromMem(pubKeyPem)
+	if err != nil {
+		return nil, err
+	}
+	return &PubKey{publicKey: pub}, nil
+}
+
 // KeyAdapter implements Sm2KMS interface
 type KeyAdapter struct {
 	keyID     string

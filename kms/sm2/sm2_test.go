@@ -19,12 +19,24 @@ func TestCreateKeyAndSavePem(t *testing.T) {
 
 	err := adapter.CreateKey()
 	assert.Nil(t, err, "kms create key failed")
-
 	pubKey := adapter.PublicKey()
+
+	// kms key -> pem -> tjfoc key
 	pubKeyPem, err := pubKey.WriteToPem()
 	assert.Nil(t, err, "kms pub key write to pem failed")
-	_, err = x509.ReadPublicKeyFromMem(pubKeyPem)
+	tjPubKey, err := x509.ReadPublicKeyFromMem(pubKeyPem)
 	assert.Nil(t, err, "read pem from kms pub key failed")
+
+	// tjfoc key -> pem -> new kms key
+	tjPubKeyPem, err := x509.WritePublicKeyToMem(tjPubKey)
+	assert.Nil(t, err, "tjfoc pub key write to pem failed")
+	transformedPubKey, err := pubKey.ReadFromPem(tjPubKeyPem)
+	assert.Nil(t, err, "kms pub key read from tjfoc failed")
+
+	// compare new kms key with origin
+	transformedPubKeyPem, err := transformedPubKey.WriteToPem()
+	assert.Nil(t, err, "transformed kms pub key write to pem failed")
+	assert.Equal(t, pubKeyPem, transformedPubKeyPem, "transformed kms should equal the origin one")
 }
 
 // TestSignAndVerify tests Sign() and Verify() methods
@@ -61,10 +73,12 @@ func TestSignAndVerifyCompatibility(t *testing.T) {
 	pubKeyPem, _ := pubKey.WriteToPem()
 	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
 
+	// Sign by kms
 	message := []byte("some message")
 	signature, err := adapter.Sign(message)
 	assert.Nil(t, err, "kms sign failed")
 
+	// Verify by tjfoc
 	res := tjPubKey.Verify(message, signature)
 	assert.True(t, res, "tjfoc verify should pass")
 
@@ -106,8 +120,11 @@ func TestEncryptAndDecryptCompatibility(t *testing.T) {
 	pubKey := adapter.PublicKey()
 	pubKeyPem, _ := pubKey.WriteToPem()
 	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
+
+	// Encrypt by tjfoc
 	cipherText, _ := tjPubKey.EncryptAsn1(plainText, rand.Reader)
 
+	// Decrypt by kms
 	decryptedText, err := adapter.Decrypt(cipherText)
 	assert.Nil(t, err, "tjfoc encrypted, kms decrypt failed")
 	assert.Equal(t, plainText, decryptedText, "tjfoc encrypted, kms decrypted, text should equal")
