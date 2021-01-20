@@ -2,12 +2,29 @@ package sm2
 
 import (
 	"crypto/rand"
+	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func initKMS() Sm2KMS {
 	return CreateKeyAdapter()
+}
+
+// TestGenerateKeyAndSavePem tests CreateKey() then
+//   save pubKey to pem and read by tjfoc.
+func TestCreateKeyAndSavePem(t *testing.T) {
+	adapter := initKMS()
+	assert.NotNil(t, adapter, "init failed")
+
+	err := adapter.CreateKey()
+	assert.Nil(t, err, "kms create key failed")
+
+	pubKey := adapter.PublicKey()
+	pubKeyPem, err := pubKey.WriteToPem()
+	assert.Nil(t, err, "kms pub key write to pem failed")
+	_, err = x509.ReadPublicKeyFromMem(pubKeyPem)
+	assert.Nil(t, err, "read pem from kms pub key failed")
 }
 
 // TestSignAndVerify tests Sign() and Verify() methods
@@ -41,11 +58,14 @@ func TestSignAndVerifyCompatibility(t *testing.T) {
 	assert.Nil(t, err, "kms create key failed")
 
 	pubKey := adapter.PublicKey()
+	pubKeyPem, _ := pubKey.WriteToPem()
+	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
+
 	message := []byte("some message")
 	signature, err := adapter.Sign(message)
 	assert.Nil(t, err, "kms sign failed")
 
-	res := pubKey.Verify(message, signature)
+	res := tjPubKey.Verify(message, signature)
 	assert.True(t, res, "tjfoc verify should pass")
 
 	err = adapter.DeleteKey()
@@ -84,7 +104,9 @@ func TestEncryptAndDecryptCompatibility(t *testing.T) {
 
 	plainText := []byte("plain text")
 	pubKey := adapter.PublicKey()
-	cipherText, _ := pubKey.EncryptAsn1(plainText, rand.Reader)
+	pubKeyPem, _ := pubKey.WriteToPem()
+	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
+	cipherText, _ := tjPubKey.EncryptAsn1(plainText, rand.Reader)
 
 	decryptedText, err := adapter.Decrypt(cipherText)
 	assert.Nil(t, err, "tjfoc encrypted, kms decrypt failed")

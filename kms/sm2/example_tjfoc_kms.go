@@ -3,8 +3,19 @@ package sm2
 import (
 	"crypto/rand"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/sm2"
+	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 )
 
+// PubKey implements Sm2PubKey interface
+type PubKey struct {
+	publicKey *sm2.PublicKey
+}
+
+func (pubKey *PubKey) WriteToPem() ([]byte, error) {
+	return x509.WritePublicKeyToMem(pubKey.publicKey)
+}
+
+// KeyAdapter implements Sm2KMS interface
 type KeyAdapter struct {
 	keyID     string
 	publicKey *sm2.PublicKey
@@ -25,8 +36,10 @@ func (adapter *KeyAdapter) CreateKey() error {
 	return nil
 }
 
-func (adapter *KeyAdapter) PublicKey() *sm2.PublicKey {
-	return adapter.publicKey
+func (adapter *KeyAdapter) PublicKey() Sm2PubKey {
+	return &PubKey{
+		publicKey: adapter.publicKey,
+	}
 }
 
 func (adapter *KeyAdapter) KeyID() string {
