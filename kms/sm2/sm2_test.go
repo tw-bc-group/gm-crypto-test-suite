@@ -8,6 +8,8 @@ import (
 )
 
 func initKMS() Sm2KMS {
+	// ToDo When Test: Replace your own sm2 kms
+	//   that implements interface Sm2KMS
 	return CreateKeyAdapter()
 }
 

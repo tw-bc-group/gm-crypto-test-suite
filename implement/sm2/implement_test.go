@@ -6,10 +6,16 @@ import (
 	"testing"
 )
 
+func initImpl() Sm2Creator {
+	// ToDo When Test: Replace your own sm2 implement
+	//   that implements interface Sm2Creator
+	return &KeyCreator{}
+}
+
 // TestCreateKeyAndSavePubKeyPem tests CreateKey() then
 //   save pubKey to pem and read by tjfoc.
 func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
-	keyCreator := KeyCreator{}
+	keyCreator := initImpl()
 	pubKey := keyCreator.CreateKey().PublicKey()
 	assert.NotNil(t, pubKey, "init failed")
 
