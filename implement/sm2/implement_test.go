@@ -62,7 +62,21 @@ func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
 	assert.Equal(t, privKeyPem, transformedPrivKeyPem, "transformed kms should equal the origin one")
 }
 
-// ToDo: Encrypt and Decrypt self
+// TestEncryptAndDecrypt tests Encrypt() and Decrypt()
+//   methods by impl self.
+func TestEncryptAndDecrypt(t *testing.T) {
+	keyCreator := KeyCreator{}
+	privKey := keyCreator.CreateKey()
+	assert.NotNil(t, privKey, "init failed")
+
+	plainText := []byte("plain text")
+	cipherText, err := privKey.PublicKey().Encrypt(plainText)
+	assert.Nil(t, err, "impl encrypt failed")
+
+	decryptedText, err := privKey.Decrypt(cipherText)
+	assert.Nil(t, err, "impl decrypt failed")
+	assert.Equal(t, plainText, decryptedText, "impl decrypted text should equal")
+}
 
 // ToDo: Encrypt and Decrypt with tjfoc
 
