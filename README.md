@@ -1,6 +1,6 @@
 # 国密测试套件（GM Crypto Test Suite）
 
-这是基于Golang的国密测试套件，用于测试国密SM2实现库或KMS服务，并验证其与[tjfoc-gm库](https://github.com/tw-bc-group/tjfoc-gm)的兼容性。
+这是基于Golang的国密测试套件，用于测试国密SM2实现库或KMS服务，并验证其与[tjfoc-gm库v1.4.0](https://github.com/Hyperledger-TWGC/tjfoc-gm)的兼容性。
 
 ## 测试对象
 
@@ -40,7 +40,7 @@
 - [ ] 测试框架
 - [ ] 测试示例
 
-### 国密算法库
+### 国密实现库
 
 #### 测试库自洽
 - [ ] 密钥生成

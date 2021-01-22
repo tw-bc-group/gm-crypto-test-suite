@@ -22,11 +22,11 @@ func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
 	// kms key -> pem -> tjfoc key
 	pubKeyPem, err := pubKey.WriteToPem()
 	assert.Nil(t, err, "kms pub key write to pem failed")
-	tjPubKey, err := x509.ReadPublicKeyFromMem(pubKeyPem)
+	tjPubKey, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	assert.Nil(t, err, "read pem from kms pub key failed")
 
 	// tjfoc key -> pem -> new kms key
-	tjPubKeyPem, err := x509.WritePublicKeyToMem(tjPubKey)
+	tjPubKeyPem, err := x509.WritePublicKeyToPem(tjPubKey)
 	assert.Nil(t, err, "tjfoc pub key write to pem failed")
 	transformedPubKey, err := pubKey.ReadFromPem(tjPubKeyPem)
 	assert.Nil(t, err, "kms pub key read from tjfoc failed")
@@ -47,11 +47,11 @@ func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
 	// kms key -> pem -> tjfoc key
 	privKeyPem, err := privKey.WriteToPem()
 	assert.Nil(t, err, "kms pub key write to pem failed")
-	tjPrivKey, err := x509.ReadPrivateKeyFromMem(privKeyPem, nil)
+	tjPrivKey, err := x509.ReadPrivateKeyFromPem(privKeyPem, nil)
 	assert.Nil(t, err, "read pem from kms pub key failed")
 
 	// tjfoc key -> pem -> new kms key
-	tjPrivKeyPem, err := x509.WritePrivateKeyToMem(tjPrivKey, nil)
+	tjPrivKeyPem, err := x509.WritePrivateKeyToPem(tjPrivKey, nil)
 	assert.Nil(t, err, "tjfoc pub key write to pem failed")
 	transformedPrivKey, err := privKey.ReadFromPem(tjPrivKeyPem)
 	assert.Nil(t, err, "kms pub key read from tjfoc failed")

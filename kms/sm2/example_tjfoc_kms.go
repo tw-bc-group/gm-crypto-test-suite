@@ -12,11 +12,11 @@ type PubKey struct {
 }
 
 func (pubKey *PubKey) WriteToPem() ([]byte, error) {
-	return x509.WritePublicKeyToMem(pubKey.publicKey)
+	return x509.WritePublicKeyToPem(pubKey.publicKey)
 }
 
 func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (Sm2PubKey, error) {
-	pub, err := x509.ReadPublicKeyFromMem(pubKeyPem)
+	pub, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	if err != nil {
 		return nil, err
 	}

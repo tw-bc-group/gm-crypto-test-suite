@@ -20,11 +20,11 @@ func (pubKey *PubKey) Encrypt(plainText []byte) ([]byte, error) {
 }
 
 func (pubKey *PubKey) WriteToPem() ([]byte, error) {
-	return x509.WritePublicKeyToMem(&pubKey.pubKey)
+	return x509.WritePublicKeyToPem(&pubKey.pubKey)
 }
 
 func (pubKey *PubKey) ReadFromPem(pem []byte) (Sm2PubKeyImpl, error) {
-	readPubKey, err := x509.ReadPublicKeyFromMem(pem)
+	readPubKey, err := x509.ReadPublicKeyFromPem(pem)
 	if err != nil {
 		return nil, err
 	}
@@ -49,11 +49,11 @@ func (privKey *PrivKey) Decrypt(cipherText []byte) ([]byte, error) {
 }
 
 func (privKey *PrivKey) WriteToPem() ([]byte, error) {
-	return x509.WritePrivateKeyToMem(&privKey.privKey, nil)
+	return x509.WritePrivateKeyToPem(&privKey.privKey, nil)
 }
 
 func (privKey *PrivKey) ReadFromPem(pem []byte) (Sm2PrivKeyImpl, error) {
-	readPrivKey, err := x509.ReadPrivateKeyFromMem(pem, nil)
+	readPrivKey, err := x509.ReadPrivateKeyFromPem(pem, nil)
 	if err != nil {
 		return nil, err
 	}

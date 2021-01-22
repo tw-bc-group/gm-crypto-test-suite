@@ -26,11 +26,11 @@ func TestCreateKeyAndSavePem(t *testing.T) {
 	// kms key -> pem -> tjfoc key
 	pubKeyPem, err := pubKey.WriteToPem()
 	assert.Nil(t, err, "kms pub key write to pem failed")
-	tjPubKey, err := x509.ReadPublicKeyFromMem(pubKeyPem)
+	tjPubKey, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	assert.Nil(t, err, "read pem from kms pub key failed")
 
 	// tjfoc key -> pem -> new kms key
-	tjPubKeyPem, err := x509.WritePublicKeyToMem(tjPubKey)
+	tjPubKeyPem, err := x509.WritePublicKeyToPem(tjPubKey)
 	assert.Nil(t, err, "tjfoc pub key write to pem failed")
 	transformedPubKey, err := pubKey.ReadFromPem(tjPubKeyPem)
 	assert.Nil(t, err, "kms pub key read from tjfoc failed")
@@ -73,7 +73,7 @@ func TestSignAndVerifyCompatibility(t *testing.T) {
 
 	pubKey := adapter.PublicKey()
 	pubKeyPem, _ := pubKey.WriteToPem()
-	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
+	tjPubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
 
 	// Sign by kms
 	message := []byte("some message")
@@ -121,7 +121,7 @@ func TestEncryptAndDecryptCompatibility(t *testing.T) {
 	plainText := []byte("plain text")
 	pubKey := adapter.PublicKey()
 	pubKeyPem, _ := pubKey.WriteToPem()
-	tjPubKey, _ := x509.ReadPublicKeyFromMem(pubKeyPem)
+	tjPubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
 
 	// Encrypt by tjfoc
 	cipherText, _ := tjPubKey.EncryptAsn1(plainText, rand.Reader)
