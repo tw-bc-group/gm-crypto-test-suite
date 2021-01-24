@@ -43,15 +43,36 @@
 ### 国密实现库
 
 #### 测试库自洽
-- [ ] 密钥生成
+- [x] 密钥生成
 - [ ] 加密再解密
 - [ ] 签名再验签
 
 #### 兼容tjfoc库
-- [ ] 公钥pem互相读写
-- [ ] 私钥pem互相读写
+- [x] 公钥pem互相读写
+- [x] 私钥pem互相读写
 - [ ] tjfoc加密，测试库再解密
 - [ ] 测试库加密，tjfoc解密
 - [ ] 测试库签名，tjfoc再验签
 - [ ] tjfoc签名，测试库再验签
 
+# 如何使用
+
+## kms
+
+1. 包装需要测试的库，实现`kms/sm2_test/sm2.go`中的全部2个接口。可参考`example_tjfoc_kms.go`，该文件为tjfoc库模拟的kms。
+2. 替换`sm2_test.go`中的`initKms`函数，将`CreateKeyAdapter`替换为返回封装的待测试kms对`Sm2KMS`接口的实现。
+3. 运行`sm2_test.go`，查看测试结果。
+
+
+## 国密实现库
+
+1. 包装需要测试的库，实现`implement/sm2_test/sm2.go`中的全部3个接口。可参考`example_tjfoc_implement.go`，该文件为对tjfoc库的包装。
+2. 替换`sm2_test.go`中的`initImpl`函数，将`KeyCreator`替换为封装的待测试库对`Sm2Creator`接口的实现。
+3. 运行`sm2_test.go`，查看测试结果。
+
+
+# Ideas
+
+1. 目前的兼容性测试是以tjfoc库为基准的，可改造为任意2库的测试，以适应更多场景。
+2. 目前的测试方法为clone本代码库后进行添加/更改，改造为在其他代码库import进去，再传递接口的实现。
+3. 在1的基础上，定期生成多个库两两之间的兼容测试结果，反馈社区和作者。
