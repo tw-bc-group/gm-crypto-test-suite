@@ -1,6 +1,8 @@
 package sm2
 
 import (
+	"crypto/rand"
+	"github.com/Hyperledger-TWGC/tjfoc-gm/sm2"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -40,7 +42,7 @@ func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
 // TestCreateKeyAndSavePrivKeyPem tests CreateKey() then
 //   save privKey to pem and read by tjfoc.
 func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
-	keyCreator := KeyCreator{}
+	keyCreator := initImpl()
 	privKey := keyCreator.CreateKey()
 	assert.NotNil(t, privKey, "init failed")
 
@@ -65,7 +67,7 @@ func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
 // TestEncryptAndDecrypt tests Encrypt() and Decrypt()
 //   methods by impl self.
 func TestEncryptAndDecrypt(t *testing.T) {
-	keyCreator := KeyCreator{}
+	keyCreator := initImpl()
 	privKey := keyCreator.CreateKey()
 	assert.NotNil(t, privKey, "init failed")
 
@@ -78,8 +80,100 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	assert.Equal(t, plainText, decryptedText, "impl decrypted text should equal")
 }
 
-// ToDo: Encrypt and Decrypt with tjfoc
+func TestEncryptAndDecryptCompatibility(t *testing.T) {
+	t.Run("Impl Encrypt Then Base Decrypt", TestImplEncryptThenBaseDecrypt)
+	t.Run("Base Encrypt Then Impl Decrypt", TestBaseEncryptThenImplDecrypt)
+}
 
-// ToDo: sign and verify self
+func TestImplEncryptThenBaseDecrypt(t *testing.T) {
+	// base create key
+	privKey, _ := sm2.GenerateKey(nil)
+	pubKeyPem, _ := x509.WritePublicKeyToPem(&privKey.PublicKey)
+	implPubKey, _ := initImpl().CreateKey().PublicKey().ReadFromPem(pubKeyPem)
 
-// ToDo: sign and verify with tjfoc
+	// Encrypt by impl
+	plainText := []byte("plain text")
+	cipherText, err := implPubKey.Encrypt(plainText)
+	assert.Nil(t, err, "impl encrypt failed")
+
+	// Decrypt by base
+	decryptedText, err := privKey.DecryptAsn1(cipherText)
+	assert.Nil(t, err, "base decrypt failed")
+	assert.Equal(t, plainText, decryptedText, "impl encrypted, base decrypted, text should equal")
+}
+
+func TestBaseEncryptThenImplDecrypt(t *testing.T) {
+	// impl create key
+	keyCreator := initImpl()
+	privKey := keyCreator.CreateKey()
+	assert.NotNil(t, privKey, "init failed")
+	pubKeyPem, _ := privKey.PublicKey().WriteToPem()
+	basePubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
+
+	// Encrypt by base
+	plainText := []byte("plain text")
+	cipherText, err := basePubKey.EncryptAsn1(plainText, rand.Reader)
+	assert.Nil(t, err, "base encrypt failed")
+
+	// Decrypt by impl
+	decryptedText, err := privKey.Decrypt(cipherText)
+	assert.Nil(t, err, "impl decrypt failed")
+	assert.Equal(t, plainText, decryptedText, "base encrypted, impl decrypted, text should equal")
+}
+
+// TestSignAndVerify tests Sign() and Verify()
+//   methods by impl self
+func TestSignAndVerify(t *testing.T) {
+	keyCreator := initImpl()
+	privKey := keyCreator.CreateKey()
+	assert.NotNil(t, privKey, "init failed")
+
+	message := []byte("some message")
+	signature, err := privKey.Sign(message)
+	assert.Nil(t, err, "impl sign failed")
+
+	res, err := privKey.PublicKey().Verify(message, signature)
+	assert.Nil(t, err, "impl verify failed")
+	assert.True(t, res, "impl verify should pass")
+}
+
+// TestSignAndVerifyCompatibility tests compatibility between impl and base
+//   on Sign() and Verify() methods.
+func TestSignAndVerifyCompatibility(t *testing.T) {
+	t.Run("Impl Sign And Base Verify", TestImplSignAndBaseVerify)
+	t.Run("Base Sign And Impl Verify", TestBaseSignAndImplVerify)
+}
+
+func TestImplSignAndBaseVerify(t *testing.T) {
+	// impl create key
+	keyCreator := initImpl()
+	privKey := keyCreator.CreateKey()
+	assert.NotNil(t, privKey, "init failed")
+	pubKeyPem, _ := privKey.PublicKey().WriteToPem()
+	tjPubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
+
+	// Sign by impl
+	message := []byte("some message")
+	signature, err := privKey.Sign(message)
+	assert.Nil(t, err, "impl sign failed")
+
+	// Verify by base
+	res := tjPubKey.Verify(message, signature)
+	assert.True(t, res, "base verify should pass")
+}
+
+func TestBaseSignAndImplVerify(t *testing.T) {
+	// base create key
+	privKey, _ := sm2.GenerateKey(nil)
+	pubKeyPem, _ := x509.WritePublicKeyToPem(&privKey.PublicKey)
+	implPubKey, _ := initImpl().CreateKey().PublicKey().ReadFromPem(pubKeyPem)
+
+	// Sign by base
+	message := []byte("some message")
+	signature, _ := privKey.Sign(rand.Reader, message, nil)
+
+	// Verify by impl
+	res, err := implPubKey.Verify(message, signature)
+	assert.Nil(t, err, "impl verify failed")
+	assert.True(t, res, "impl verify should pass")
+}
