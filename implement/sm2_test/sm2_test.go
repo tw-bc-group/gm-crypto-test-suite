@@ -8,9 +8,9 @@ import (
 	"testing"
 )
 
-func initImpl() Sm2Creator {
+func initImpl() Creator {
 	// ToDo When Test: Replace your own sm2 implement
-	//   that implements interface Sm2Creator
+	//   that implements interface Creator
 	return &KeyCreator{}
 }
 

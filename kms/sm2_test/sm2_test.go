@@ -7,9 +7,9 @@ import (
 	"testing"
 )
 
-func initKMS() Sm2KMS {
+func initKMS() IKMS {
 	// ToDo When Test: Replace your own sm2 kms
-	//   that implements interface Sm2KMS
+	//   that implements interface IKMS
 	return CreateKeyAdapter()
 }
 

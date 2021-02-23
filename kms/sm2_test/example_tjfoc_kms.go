@@ -6,7 +6,7 @@ import (
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 )
 
-// PubKey implements Sm2PubKey interface
+// PubKey implements IPubKey interface
 type PubKey struct {
 	publicKey *sm2.PublicKey
 }
@@ -15,7 +15,7 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToPem(pubKey.publicKey)
 }
 
-func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (Sm2PubKey, error) {
+func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (IPubKey, error) {
 	pub, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	if err != nil {
 		return nil, err
@@ -23,7 +23,7 @@ func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (Sm2PubKey, error) {
 	return &PubKey{publicKey: pub}, nil
 }
 
-// KeyAdapter implements Sm2KMS interface
+// KeyAdapter implements IKMS interface
 type KeyAdapter struct {
 	keyID     string
 	publicKey *sm2.PublicKey
@@ -44,7 +44,7 @@ func (adapter *KeyAdapter) CreateKey() error {
 	return nil
 }
 
-func (adapter *KeyAdapter) PublicKey() Sm2PubKey {
+func (adapter *KeyAdapter) PublicKey() IPubKey {
 	return &PubKey{
 		publicKey: adapter.publicKey,
 	}

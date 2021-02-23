@@ -1,8 +1,8 @@
 package sm2
 
-type Sm2KMS interface {
+type IKMS interface {
 	CreateKey() error
-	PublicKey() Sm2PubKey
+	PublicKey() IPubKey
 	KeyID() string
 	Sign(message []byte) ([]byte, error)
 	Verify(message, signature []byte) (bool, error)
@@ -11,10 +11,10 @@ type Sm2KMS interface {
 	DeleteKey() error
 }
 
-// Sm2PubKey is designed to test compatibility
-type Sm2PubKey interface {
+// IPubKey is designed to test compatibility
+type IPubKey interface {
 	// WriteToPem writes pubKey to pem for tjfoc to load
 	WriteToPem() ([]byte, error)
 	// ReadFromPem reads pubKey pem from tjfoc
-	ReadFromPem([]byte) (Sm2PubKey, error)
+	ReadFromPem([]byte) (IPubKey, error)
 }

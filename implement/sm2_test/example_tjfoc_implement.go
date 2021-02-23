@@ -6,7 +6,7 @@ import (
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 )
 
-// PubKey implements interface Sm2PubKeyImpl
+// PubKey implements interface PubKeyImpl
 type PubKey struct {
 	pubKey sm2.PublicKey
 }
@@ -23,7 +23,7 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToPem(&pubKey.pubKey)
 }
 
-func (pubKey *PubKey) ReadFromPem(pem []byte) (Sm2PubKeyImpl, error) {
+func (pubKey *PubKey) ReadFromPem(pem []byte) (PubKeyImpl, error) {
 	readPubKey, err := x509.ReadPublicKeyFromPem(pem)
 	if err != nil {
 		return nil, err
@@ -31,12 +31,12 @@ func (pubKey *PubKey) ReadFromPem(pem []byte) (Sm2PubKeyImpl, error) {
 	return &PubKey{pubKey: *readPubKey}, nil
 }
 
-// PrivKey implements interface Sm2PrivKeyImpl
+// PrivKey implements interface PrivKeyImpl
 type PrivKey struct {
 	privKey sm2.PrivateKey
 }
 
-func (privKey *PrivKey) PublicKey() Sm2PubKeyImpl {
+func (privKey *PrivKey) PublicKey() PubKeyImpl {
 	return &PubKey{pubKey: privKey.privKey.PublicKey}
 }
 
@@ -52,7 +52,7 @@ func (privKey *PrivKey) WriteToPem() ([]byte, error) {
 	return x509.WritePrivateKeyToPem(&privKey.privKey, nil)
 }
 
-func (privKey *PrivKey) ReadFromPem(pem []byte) (Sm2PrivKeyImpl, error) {
+func (privKey *PrivKey) ReadFromPem(pem []byte) (PrivKeyImpl, error) {
 	readPrivKey, err := x509.ReadPrivateKeyFromPem(pem, nil)
 	if err != nil {
 		return nil, err
@@ -60,10 +60,10 @@ func (privKey *PrivKey) ReadFromPem(pem []byte) (Sm2PrivKeyImpl, error) {
 	return &PrivKey{privKey: *readPrivKey}, nil
 }
 
-// KeyCreator implements Sm2Creator interface
+// KeyCreator implements Creator interface
 type KeyCreator struct{}
 
-func (creator *KeyCreator) CreateKey() Sm2PrivKeyImpl {
+func (creator *KeyCreator) CreateKey() PrivKeyImpl {
 	privKey, err := sm2.GenerateKey(nil)
 	if err != nil {
 		return nil
