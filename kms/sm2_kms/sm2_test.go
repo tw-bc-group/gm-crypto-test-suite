@@ -1,16 +1,18 @@
-package test_sm2
+package sm2_kms_test
 
 import (
 	"crypto/rand"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 	"github.com/stretchr/testify/assert"
+	"github.com/tw-bc-group/gm-crypto-test-suite/kms/sm2_kms"
+	"github.com/tw-bc-group/gm-crypto-test-suite/kms/sm2_kms/kms/tjfoc"
 	"testing"
 )
 
-func initKMS() IKMS {
+func initKMS() sm2_kms.Sm2KMS {
 	// ToDo When Test: Replace your own sm2 kms
-	//   that implements interface IKMS
-	return CreateKeyAdapter()
+	//   that implements interface Sm2KMS
+	return tjfoc.CreateKeyAdapter()
 }
 
 // TestGenerateKeyAndSavePem tests CreateKey() then

@@ -1,12 +1,13 @@
-package test_sm2
+package tjfoc
 
 import (
 	"crypto/rand"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/sm2"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
+	"github.com/tw-bc-group/gm-crypto-test-suite/kms/sm2_kms"
 )
 
-// PubKey implements IPubKey interface
+// PubKey implements Sm2PubKey interface
 type PubKey struct {
 	publicKey *sm2.PublicKey
 }
@@ -15,7 +16,7 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToPem(pubKey.publicKey)
 }
 
-func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (IPubKey, error) {
+func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (sm2_kms.Sm2PubKey, error) {
 	pub, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	if err != nil {
 		return nil, err
@@ -23,7 +24,7 @@ func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (IPubKey, error) {
 	return &PubKey{publicKey: pub}, nil
 }
 
-// KeyAdapter implements IKMS interface
+// KeyAdapter implements Sm2KMS interface
 type KeyAdapter struct {
 	keyID     string
 	publicKey *sm2.PublicKey
@@ -44,7 +45,7 @@ func (adapter *KeyAdapter) CreateKey() error {
 	return nil
 }
 
-func (adapter *KeyAdapter) PublicKey() IPubKey {
+func (adapter *KeyAdapter) PublicKey() sm2_kms.Sm2PubKey {
 	return &PubKey{
 		publicKey: adapter.publicKey,
 	}

@@ -1,17 +1,19 @@
-package test_sm2
+package sm2_impl_test
 
 import (
 	"crypto/rand"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/sm2"
 	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 	"github.com/stretchr/testify/assert"
+	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl"
+	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl/impl/tjfoc"
 	"testing"
 )
 
-func initImpl() Creator {
+func initImpl() sm2_impl.Sm2Creator {
 	// ToDo When Test: Replace your own sm2 implement
-	//   that implements interface Creator
-	return &KeyCreator{}
+	//   that implements interface Sm2Creator
+	return &tjfoc.KeyCreator{}
 }
 
 // TestCreateKeyAndSavePubKeyPem tests CreateKey() then
