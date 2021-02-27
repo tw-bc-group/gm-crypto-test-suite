@@ -1,4 +1,4 @@
-package sm2
+package test_sm2
 
 type Creator interface {
 	CreateKey() PrivKeyImpl
