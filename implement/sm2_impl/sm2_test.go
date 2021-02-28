@@ -7,28 +7,31 @@ import (
 	"testing"
 )
 
-func initImplA() sm2_impl.Sm2Creator {
-	// ToDo When Test: Replace your own sm2 implement A
-	//   that implements interface Sm2Creator
+func initTjfoc() sm2_impl.Sm2Creator {
 	return &tjfoc.KeyCreator{}
 }
 
-func initImplB() sm2_impl.Sm2Creator {
-	// ToDo When Test: Replace your own sm2 implement B
-	//   that implements interface Sm2Creator
+func initTjfocCopy() sm2_impl.Sm2Creator {
 	return &tjfoc.KeyCreator{}
+}
+
+// ToDo Before Test: Step 1
+//   Add your own implement here
+//	 that implements interface Sm2Creator like initTjfoc
+
+var testParameters = []struct {
+	alice sm2_impl.Sm2Creator
+	bob   sm2_impl.Sm2Creator
+}{
+	// ToDo Before Test: Step 2
+	//   Add test relationships here
+	{initTjfoc(), initTjfocCopy()},
+	{initTjfocCopy(), initTjfoc()},
 }
 
 // TestCreateKeyAndSavePubKeyPem tests CreateKey() then
 //   save pubKey to pem and read it.
 func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
-	testParameters := []struct {
-		alice sm2_impl.Sm2Creator
-		bob   sm2_impl.Sm2Creator
-	}{
-		{initImplA(), initImplB()},
-		{initImplB(), initImplA()},
-	}
 	for _, parameter := range testParameters {
 		keyCreatorA := parameter.alice
 		pubKeyA := keyCreatorA.CreateKey().PublicKey()
@@ -59,13 +62,6 @@ func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
 // TestCreateKeyAndSavePrivKeyPem tests CreateKey() then
 //   save privKey to pem and read it.
 func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
-	testParameters := []struct {
-		alice sm2_impl.Sm2Creator
-		bob   sm2_impl.Sm2Creator
-	}{
-		{initImplA(), initImplB()},
-		{initImplB(), initImplA()},
-	}
 	for _, parameter := range testParameters {
 		keyCreatorA := parameter.alice
 		privKeyA := keyCreatorA.CreateKey()
@@ -96,13 +92,6 @@ func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
 // TestEncryptAndDecryptCompatibility tests compatibility between Alice and Bob
 //   on Encrypt() and Decrypt() methods.
 func TestEncryptAndDecryptCompatibility(t *testing.T) {
-	testParameters := []struct {
-		alice sm2_impl.Sm2Creator
-		bob   sm2_impl.Sm2Creator
-	}{
-		{initImplA(), initImplB()},
-		{initImplB(), initImplA()},
-	}
 	for _, parameter := range testParameters {
 		keyCreatorAlice := parameter.alice
 		keyCreatorBob := parameter.bob
@@ -127,13 +116,6 @@ func TestEncryptAndDecryptCompatibility(t *testing.T) {
 // TestSignAndVerifyCompatibility tests compatibility between Alice and Bob
 //   on Sign() and Verify() methods.
 func TestSignAndVerifyCompatibility(t *testing.T) {
-	testParameters := []struct {
-		alice sm2_impl.Sm2Creator
-		bob   sm2_impl.Sm2Creator
-	}{
-		{initImplA(), initImplB()},
-		{initImplB(), initImplA()},
-	}
 	for _, parameter := range testParameters {
 		keyCreatorAlice := parameter.alice
 		keyCreatorBob := parameter.bob
