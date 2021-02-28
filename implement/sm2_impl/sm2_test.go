@@ -1,181 +1,138 @@
 package sm2_impl_test
 
 import (
-	"crypto/rand"
-	"github.com/Hyperledger-TWGC/tjfoc-gm/sm2"
-	"github.com/Hyperledger-TWGC/tjfoc-gm/x509"
 	"github.com/stretchr/testify/assert"
 	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl"
 	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl/impl/tjfoc"
 	"testing"
 )
 
-func initImpl() sm2_impl.Sm2Creator {
-	// ToDo When Test: Replace your own sm2 implement
+func initImplA() sm2_impl.Sm2Creator {
+	// ToDo When Test: Replace your own sm2 implement A
+	//   that implements interface Sm2Creator
+	return &tjfoc.KeyCreator{}
+}
+
+func initImplB() sm2_impl.Sm2Creator {
+	// ToDo When Test: Replace your own sm2 implement B
 	//   that implements interface Sm2Creator
 	return &tjfoc.KeyCreator{}
 }
 
 // TestCreateKeyAndSavePubKeyPem tests CreateKey() then
-//   save pubKey to pem and read by tjfoc.
+//   save pubKey to pem and read it.
 func TestCreateKeyAndSavePubKeyPem(t *testing.T) {
-	keyCreator := initImpl()
-	pubKey := keyCreator.CreateKey().PublicKey()
-	assert.NotNil(t, pubKey, "init failed")
+	keyCreatorA := initImplA()
+	pubKeyA := keyCreatorA.CreateKey().PublicKey()
+	assert.NotNil(t, pubKeyA, "init failed")
+	keyCreatorB := initImplB()
+	pubKeyB := keyCreatorB.CreateKey().PublicKey()
+	assert.NotNil(t, pubKeyB, "init failed")
 
-	// kms key -> pem -> tjfoc key
-	pubKeyPem, err := pubKey.WriteToPem()
-	assert.Nil(t, err, "kms pub key write to pem failed")
-	tjPubKey, err := x509.ReadPublicKeyFromPem(pubKeyPem)
-	assert.Nil(t, err, "read pem from kms pub key failed")
+	// pub key A -> pem -> pub key B
+	pubKeyPemA, err := pubKeyA.WriteToPem()
+	assert.Nil(t, err, "pub key A write to pem failed")
+	pubKeyA2B, err := pubKeyB.ReadFromPem(pubKeyPemA)
+	assert.Nil(t, err, "read pem from pub key A failed")
 
-	// tjfoc key -> pem -> new kms key
-	tjPubKeyPem, err := x509.WritePublicKeyToPem(tjPubKey)
-	assert.Nil(t, err, "tjfoc pub key write to pem failed")
-	transformedPubKey, err := pubKey.ReadFromPem(tjPubKeyPem)
-	assert.Nil(t, err, "kms pub key read from tjfoc failed")
+	// pub key B -> pem -> new pub key A
+	pubKeyPemA2B, err := pubKeyA2B.WriteToPem()
+	assert.Nil(t, err, "pub key B write to pem failed")
+	pubKeyA2B2A, err := pubKeyA.ReadFromPem(pubKeyPemA2B)
+	assert.Nil(t, err, "pub key A read from B failed")
 
-	// compare new kms key with origin
-	transformedPubKeyPem, err := transformedPubKey.WriteToPem()
-	assert.Nil(t, err, "transformed kms pub key write to pem failed")
-	assert.Equal(t, pubKeyPem, transformedPubKeyPem, "transformed kms should equal the origin one")
+	// compare new pub key A with origin
+	pubKeyPemA2B2A, err := pubKeyA2B2A.WriteToPem()
+	assert.Nil(t, err, "pub key A write to pem failed")
+	assert.Equal(t, pubKeyPemA, pubKeyPemA2B2A, "new pub key A should equal the origin one")
 }
 
 // TestCreateKeyAndSavePrivKeyPem tests CreateKey() then
-//   save privKey to pem and read by tjfoc.
+//   save privKey to pem and read it.
 func TestCreateKeyAndSavePrivKeyPem(t *testing.T) {
-	keyCreator := initImpl()
-	privKey := keyCreator.CreateKey()
-	assert.NotNil(t, privKey, "init failed")
+	keyCreatorA := initImplA()
+	privKeyA := keyCreatorA.CreateKey()
+	assert.NotNil(t, privKeyA, "init failed")
+	keyCreatorB := initImplB()
+	privKeyB := keyCreatorB.CreateKey()
+	assert.NotNil(t, privKeyB, "init failed")
 
-	// kms key -> pem -> tjfoc key
-	privKeyPem, err := privKey.WriteToPem()
-	assert.Nil(t, err, "kms pub key write to pem failed")
-	tjPrivKey, err := x509.ReadPrivateKeyFromPem(privKeyPem, nil)
-	assert.Nil(t, err, "read pem from kms pub key failed")
+	// priv key A -> pem -> priv key B
+	privKeyPemA, err := privKeyA.WriteToPem()
+	assert.Nil(t, err, "priv key A write to pem failed")
+	privKeyA2B, err := privKeyB.ReadFromPem(privKeyPemA)
+	assert.Nil(t, err, "read pem from priv key A failed")
 
-	// tjfoc key -> pem -> new kms key
-	tjPrivKeyPem, err := x509.WritePrivateKeyToPem(tjPrivKey, nil)
-	assert.Nil(t, err, "tjfoc pub key write to pem failed")
-	transformedPrivKey, err := privKey.ReadFromPem(tjPrivKeyPem)
-	assert.Nil(t, err, "kms pub key read from tjfoc failed")
+	// priv key B -> pem -> new priv key A
+	privKeyPemA2B, err := privKeyA2B.WriteToPem()
+	assert.Nil(t, err, "priv key B write to pem failed")
+	privKeyA2B2A, err := privKeyA.ReadFromPem(privKeyPemA2B)
+	assert.Nil(t, err, "priv key A read from B failed")
 
-	// compare new kms key with origin
-	transformedPrivKeyPem, err := transformedPrivKey.WriteToPem()
-	assert.Nil(t, err, "transformed kms pub key write to pem failed")
-	assert.Equal(t, privKeyPem, transformedPrivKeyPem, "transformed kms should equal the origin one")
+	// compare new priv key A with origin
+	privKeyPemA2B2A, err := privKeyA2B2A.WriteToPem()
+	assert.Nil(t, err, "new priv key A write to pem failed")
+	assert.Equal(t, privKeyPemA, privKeyPemA2B2A, "new priv key A should equal the origin one")
 }
 
-// TestEncryptAndDecrypt tests Encrypt() and Decrypt()
-//   methods by impl self.
-func TestEncryptAndDecrypt(t *testing.T) {
-	keyCreator := initImpl()
-	privKey := keyCreator.CreateKey()
-	assert.NotNil(t, privKey, "init failed")
-
-	plainText := []byte("plain text")
-	cipherText, err := privKey.PublicKey().Encrypt(plainText)
-	assert.Nil(t, err, "impl encrypt failed")
-
-	decryptedText, err := privKey.Decrypt(cipherText)
-	assert.Nil(t, err, "impl decrypt failed")
-	assert.Equal(t, plainText, decryptedText, "impl decrypted text should equal")
-}
-
+// TestEncryptAndDecryptCompatibility tests compatibility between Alice and Bob
+//   on Encrypt() and Decrypt() methods.
 func TestEncryptAndDecryptCompatibility(t *testing.T) {
-	t.Run("Impl Encrypt Then Base Decrypt", TestImplEncryptThenBaseDecrypt)
-	t.Run("Base Encrypt Then Impl Decrypt", TestBaseEncryptThenImplDecrypt)
+	testParameters := []struct {
+		alice sm2_impl.Sm2Creator
+		bob   sm2_impl.Sm2Creator
+	}{
+		{initImplA(), initImplB()},
+		{initImplB(), initImplA()},
+	}
+	for _, parameter := range testParameters {
+		keyCreatorAlice := parameter.alice
+		keyCreatorBob := parameter.bob
+
+		// Bob create key
+		privKeyBob := keyCreatorBob.CreateKey()
+		pubKeyPemBob, _ := privKeyBob.PublicKey().WriteToPem()
+		pubKeyTarget, _ := keyCreatorAlice.CreateKey().PublicKey().ReadFromPem(pubKeyPemBob)
+
+		// Encrypt by Alice
+		plainText := []byte("plain text")
+		cipherText, err := pubKeyTarget.Encrypt(plainText)
+		assert.Nil(t, err, "alice encrypt failed")
+
+		// Decrypt by Bob
+		decryptedText, err := privKeyBob.Decrypt(cipherText)
+		assert.Nil(t, err, "bob decrypt failed")
+		assert.Equal(t, plainText, decryptedText, "alice encrypted, bob decrypted, text should equal")
+	}
 }
 
-func TestImplEncryptThenBaseDecrypt(t *testing.T) {
-	// base create key
-	privKey, _ := sm2.GenerateKey(nil)
-	pubKeyPem, _ := x509.WritePublicKeyToPem(&privKey.PublicKey)
-	implPubKey, _ := initImpl().CreateKey().PublicKey().ReadFromPem(pubKeyPem)
-
-	// Encrypt by impl
-	plainText := []byte("plain text")
-	cipherText, err := implPubKey.Encrypt(plainText)
-	assert.Nil(t, err, "impl encrypt failed")
-
-	// Decrypt by base
-	decryptedText, err := privKey.DecryptAsn1(cipherText)
-	assert.Nil(t, err, "base decrypt failed")
-	assert.Equal(t, plainText, decryptedText, "impl encrypted, base decrypted, text should equal")
-}
-
-func TestBaseEncryptThenImplDecrypt(t *testing.T) {
-	// impl create key
-	keyCreator := initImpl()
-	privKey := keyCreator.CreateKey()
-	assert.NotNil(t, privKey, "init failed")
-	pubKeyPem, _ := privKey.PublicKey().WriteToPem()
-	basePubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
-
-	// Encrypt by base
-	plainText := []byte("plain text")
-	cipherText, err := basePubKey.EncryptAsn1(plainText, rand.Reader)
-	assert.Nil(t, err, "base encrypt failed")
-
-	// Decrypt by impl
-	decryptedText, err := privKey.Decrypt(cipherText)
-	assert.Nil(t, err, "impl decrypt failed")
-	assert.Equal(t, plainText, decryptedText, "base encrypted, impl decrypted, text should equal")
-}
-
-// TestSignAndVerify tests Sign() and Verify()
-//   methods by impl self
-func TestSignAndVerify(t *testing.T) {
-	keyCreator := initImpl()
-	privKey := keyCreator.CreateKey()
-	assert.NotNil(t, privKey, "init failed")
-
-	message := []byte("some message")
-	signature, err := privKey.Sign(message)
-	assert.Nil(t, err, "impl sign failed")
-
-	res, err := privKey.PublicKey().Verify(message, signature)
-	assert.Nil(t, err, "impl verify failed")
-	assert.True(t, res, "impl verify should pass")
-}
-
-// TestSignAndVerifyCompatibility tests compatibility between impl and base
+// TestSignAndVerifyCompatibility tests compatibility between Alice and Bob
 //   on Sign() and Verify() methods.
 func TestSignAndVerifyCompatibility(t *testing.T) {
-	t.Run("Impl Sign And Base Verify", TestImplSignAndBaseVerify)
-	t.Run("Base Sign And Impl Verify", TestBaseSignAndImplVerify)
-}
+	testParameters := []struct {
+		alice sm2_impl.Sm2Creator
+		bob   sm2_impl.Sm2Creator
+	}{
+		{initImplA(), initImplB()},
+		{initImplB(), initImplA()},
+	}
+	for _, parameter := range testParameters {
+		keyCreatorAlice := parameter.alice
+		keyCreatorBob := parameter.bob
 
-func TestImplSignAndBaseVerify(t *testing.T) {
-	// impl create key
-	keyCreator := initImpl()
-	privKey := keyCreator.CreateKey()
-	assert.NotNil(t, privKey, "init failed")
-	pubKeyPem, _ := privKey.PublicKey().WriteToPem()
-	tjPubKey, _ := x509.ReadPublicKeyFromPem(pubKeyPem)
+		// Alice create key
+		privKeyAlice := keyCreatorAlice.CreateKey()
+		pubKeyPemAlice, _ := privKeyAlice.PublicKey().WriteToPem()
+		pubKeyBob, _ := keyCreatorBob.CreateKey().PublicKey().ReadFromPem(pubKeyPemAlice)
 
-	// Sign by impl
-	message := []byte("some message")
-	signature, err := privKey.Sign(message)
-	assert.Nil(t, err, "impl sign failed")
+		// Sign by Alice
+		message := []byte("some message")
+		signature, err := privKeyAlice.Sign(message)
+		assert.Nil(t, err, "Alice sign failed")
 
-	// Verify by base
-	res := tjPubKey.Verify(message, signature)
-	assert.True(t, res, "base verify should pass")
-}
-
-func TestBaseSignAndImplVerify(t *testing.T) {
-	// base create key
-	privKey, _ := sm2.GenerateKey(nil)
-	pubKeyPem, _ := x509.WritePublicKeyToPem(&privKey.PublicKey)
-	implPubKey, _ := initImpl().CreateKey().PublicKey().ReadFromPem(pubKeyPem)
-
-	// Sign by base
-	message := []byte("some message")
-	signature, _ := privKey.Sign(rand.Reader, message, nil)
-
-	// Verify by impl
-	res, err := implPubKey.Verify(message, signature)
-	assert.Nil(t, err, "impl verify failed")
-	assert.True(t, res, "impl verify should pass")
+		// Verify by bob
+		res, err := pubKeyBob.Verify(message, signature)
+		assert.Nil(t, err, "Bob verify failed")
+		assert.True(t, res, "Bob verify should pass")
+	}
 }
