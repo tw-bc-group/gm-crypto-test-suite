@@ -3,6 +3,7 @@ package sm2_impl_test
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl"
+	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl/impl/ccs"
 	"github.com/tw-bc-group/gm-crypto-test-suite/implement/sm2_impl/impl/tjfoc"
 	"testing"
 )
@@ -15,6 +16,14 @@ func initTjfocCopy() sm2_impl.Sm2Creator {
 	return &tjfoc.KeyCreator{}
 }
 
+func initCcs() sm2_impl.Sm2Creator {
+	return &ccs.KeyCreator{}
+}
+
+func initCcsCopy() sm2_impl.Sm2Creator {
+	return &ccs.KeyCreator{}
+}
+
 // ToDo Before Test: Step 1
 //   Add your own implement here
 //	 that implements interface Sm2Creator like initTjfoc
@@ -25,8 +34,18 @@ var testParameters = []struct {
 }{
 	// ToDo Before Test: Step 2
 	//   Add test relationships here
+
+	// tjfoc self-consistent
 	{initTjfoc(), initTjfocCopy()},
 	{initTjfocCopy(), initTjfoc()},
+
+	// ccs self-consistent
+	{initCcs(), initCcsCopy()},
+	{initCcsCopy(), initCcs()},
+
+	// compatibility of tjfoc and ccs
+	//{initTjfoc(), initCcs()},
+	//{initCcs(), initTjfoc()},
 }
 
 // TestCreateKeyAndSavePubKeyPem tests CreateKey() then
@@ -99,11 +118,11 @@ func TestEncryptAndDecryptCompatibility(t *testing.T) {
 		// Bob create key
 		privKeyBob := keyCreatorBob.CreateKey()
 		pubKeyPemBob, _ := privKeyBob.PublicKey().WriteToPem()
-		pubKeyTarget, _ := keyCreatorAlice.CreateKey().PublicKey().ReadFromPem(pubKeyPemBob)
+		pubKeyAlice, _ := keyCreatorAlice.CreateKey().PublicKey().ReadFromPem(pubKeyPemBob)
 
 		// Encrypt by Alice
 		plainText := []byte("plain text")
-		cipherText, err := pubKeyTarget.Encrypt(plainText)
+		cipherText, err := pubKeyAlice.Encrypt(plainText)
 		assert.Nil(t, err, "alice encrypt failed")
 
 		// Decrypt by Bob
