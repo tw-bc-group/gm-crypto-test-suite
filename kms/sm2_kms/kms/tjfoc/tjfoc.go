@@ -16,7 +16,7 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToPem(pubKey.publicKey)
 }
 
-func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (sm2_kms.Sm2PubKey, error) {
+func (pubKey *PubKey) ReadFromPem(pubKeyPem []byte) (sm2_kms.IPubKey, error) {
 	pub, err := x509.ReadPublicKeyFromPem(pubKeyPem)
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (adapter *KeyAdapter) CreateKey() error {
 	return nil
 }
 
-func (adapter *KeyAdapter) PublicKey() sm2_kms.Sm2PubKey {
+func (adapter *KeyAdapter) PublicKey() sm2_kms.IPubKey {
 	return &PubKey{
 		publicKey: adapter.publicKey,
 	}

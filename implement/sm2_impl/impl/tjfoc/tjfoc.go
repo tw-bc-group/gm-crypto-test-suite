@@ -24,7 +24,7 @@ func (pubKey *PubKey) WriteToPem() ([]byte, error) {
 	return x509.WritePublicKeyToPem(&pubKey.pubKey)
 }
 
-func (pubKey *PubKey) ReadFromPem(pem []byte) (sm2_impl.Sm2PubKeyImpl, error) {
+func (pubKey *PubKey) ReadFromPem(pem []byte) (sm2_impl.IPubKey, error) {
 	readPubKey, err := x509.ReadPublicKeyFromPem(pem)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ type PrivKey struct {
 	privKey sm2.PrivateKey
 }
 
-func (privKey *PrivKey) PublicKey() sm2_impl.Sm2PubKeyImpl {
+func (privKey *PrivKey) PublicKey() sm2_impl.IPubKey {
 	return &PubKey{pubKey: privKey.privKey.PublicKey}
 }
 
@@ -53,7 +53,7 @@ func (privKey *PrivKey) WriteToPem() ([]byte, error) {
 	return x509.WritePrivateKeyToPem(&privKey.privKey, nil)
 }
 
-func (privKey *PrivKey) ReadFromPem(pem []byte) (sm2_impl.Sm2PrivKeyImpl, error) {
+func (privKey *PrivKey) ReadFromPem(pem []byte) (sm2_impl.IPrivKey, error) {
 	readPrivKey, err := x509.ReadPrivateKeyFromPem(pem, nil)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (privKey *PrivKey) ReadFromPem(pem []byte) (sm2_impl.Sm2PrivKeyImpl, error)
 // KeyCreator implements Sm2Creator interface
 type KeyCreator struct{}
 
-func (creator *KeyCreator) CreateKey() sm2_impl.Sm2PrivKeyImpl {
+func (creator *KeyCreator) CreateKey() sm2_impl.IPrivKey {
 	privKey, err := sm2.GenerateKey(nil)
 	if err != nil {
 		return nil

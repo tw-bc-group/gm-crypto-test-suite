@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func initKMS() sm2_kms.Sm2KMS {
+func initKMS() sm2_kms.IKMS {
 	// ToDo When Test: Replace your own sm2 kms
 	//   that implements interface Sm2KMS
 	return tjfoc.CreateKeyAdapter()

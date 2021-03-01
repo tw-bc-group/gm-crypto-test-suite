@@ -8,19 +8,19 @@ import (
 	"testing"
 )
 
-func initTjfoc() sm2_impl.Sm2Creator {
+func initTjfoc() sm2_impl.ICreator {
 	return &tjfoc.KeyCreator{}
 }
 
-func initTjfocCopy() sm2_impl.Sm2Creator {
+func initTjfocCopy() sm2_impl.ICreator {
 	return &tjfoc.KeyCreator{}
 }
 
-func initCcs() sm2_impl.Sm2Creator {
+func initCcs() sm2_impl.ICreator {
 	return &ccs.KeyCreator{}
 }
 
-func initCcsCopy() sm2_impl.Sm2Creator {
+func initCcsCopy() sm2_impl.ICreator {
 	return &ccs.KeyCreator{}
 }
 
@@ -29,8 +29,8 @@ func initCcsCopy() sm2_impl.Sm2Creator {
 //	 that implements interface Sm2Creator like initTjfoc
 
 var testParameters = []struct {
-	alice sm2_impl.Sm2Creator
-	bob   sm2_impl.Sm2Creator
+	alice sm2_impl.ICreator
+	bob   sm2_impl.ICreator
 }{
 	// ToDo Before Test: Step 2
 	//   Add test relationships here

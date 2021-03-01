@@ -1,20 +1,20 @@
 package sm2_impl
 
-type Creator interface {
-	CreateKey() PrivKeyImpl
+type ICreator interface {
+	CreateKey() IPrivKey
 }
 
-type PrivKeyImpl interface {
-	PublicKey() PubKeyImpl
+type IPrivKey interface {
+	PublicKey() IPubKey
 	Sign(message []byte) ([]byte, error)
 	Decrypt(cipherText []byte) ([]byte, error)
 	WriteToPem() ([]byte, error)
-	ReadFromPem(pem []byte) (PrivKeyImpl, error)
+	ReadFromPem(pem []byte) (IPrivKey, error)
 }
 
-type PubKeyImpl interface {
+type IPubKey interface {
 	Verify(message, signature []byte) (bool, error)
 	Encrypt(plainText []byte) ([]byte, error)
 	WriteToPem() ([]byte, error)
-	ReadFromPem(pem []byte) (PubKeyImpl, error)
+	ReadFromPem(pem []byte) (IPubKey, error)
 }
